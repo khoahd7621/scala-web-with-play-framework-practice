@@ -1,17 +1,26 @@
-name := """scala-web-with-play-framework-practice"""
-organization := "com.nashtechglobal.khoahd7621"
+ThisBuild / version := "1.0-SNAPSHOT"
+ThisBuild / scalaVersion := "2.13.10"
+ThisBuild / organization := "com.nashtechglobal.khoahd7621"
 
-version := "1.0-SNAPSHOT"
-
-lazy val root = (project in file(".")).enablePlugins(PlayScala)
+lazy val root = (project in file("."))
+  .enablePlugins(PlayScala)
+  .settings(
+    name := """scala-web-with-play-framework-practice""",
+    libraryDependencies ++= (appDependencies ++ testDependencies)
+  )
 
 scalaVersion := "2.13.10"
 
-libraryDependencies += guice
-libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
+val appDependencies = Seq(
+  guice,
 
-// Adds additional packages into Twirl
-//TwirlKeys.templateImports += "com.nashtechglobal.khoahd7621.controllers._"
+  // DB Access Library
+  "com.typesafe.slick" %% "slick" % "3.4.1",
+  "com.typesafe.play" %% "play-slick" % "5.1.0",
+  "com.typesafe.play" %% "play-slick-evolutions" % "5.1.0",
+  "org.postgresql" % "postgresql" % "42.5.4", // PostgreSQL JDBC Driver
+)
 
-// Adds additional packages into conf/routes
-// play.sbt.routes.RoutesKeys.routesImport += "com.nashtechglobal.khoahd7621.binders._"
+val testDependencies = Seq(
+  "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test
+)
