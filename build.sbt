@@ -13,12 +13,16 @@ scalaVersion := "2.13.10"
 
 val appDependencies = Seq(
   guice,
-
+  ws,
+  filters,
   // DB Access Library
   "com.typesafe.slick" %% "slick" % "3.4.1",
   "com.typesafe.play" %% "play-slick" % "5.1.0",
   "com.typesafe.play" %% "play-slick-evolutions" % "5.1.0",
   "org.postgresql" % "postgresql" % "42.5.4", // PostgreSQL JDBC Driver
+
+  // JSON Library
+  "org.apache.commons" % "commons-lang3" % "3.12.0"
 )
 
 val testDependencies = Seq(
