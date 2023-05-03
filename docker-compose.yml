@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  scala-db:
+    image: "postgres:11-alpine"
+    container_name: scala-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    command: postgres -c config_file=/etc/postgresql.conf
+    volumes:
+      - scala-postgres:/var/lib/postgresql/data
+      - ./postgresql/postgresql.conf:/etc/postgresql.conf
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: scala-demo
+      PGDATA: /var/lib/postgresql/data/pgdata
+    networks:
+      - scala-internal-net
+
+volumes:
+  scala-postgres:
+
+networks:
+  scala-internal-net:
