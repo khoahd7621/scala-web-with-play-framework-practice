@@ -5,8 +5,7 @@ import slick.jdbc.PostgresProfile.api._
 
 import java.time.LocalDateTime
 
-class UserTable(tag: Tag)
-    extends Table[User](tag, Some("scala-demo"), "users") {
+class UserTable(tag: Tag) extends Table[User](tag, Some("public"), "users") {
 
   /** The ID column, which is the primary key, and auto incremented */
   def id = column[Option[Long]]("id", O.PrimaryKey, O.AutoInc, O.Unique)

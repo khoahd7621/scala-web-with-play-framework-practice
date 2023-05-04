@@ -19,6 +19,14 @@ trait UserDao {
   def find(id: Long): Future[Option[User]]
 
   /**
+    * Finds a user by email.
+    *
+    * @param email User's email.
+    * @return The found user or None if no user for the given email could be found.
+    */
+  def find(email: String): Future[Option[User]]
+
+  /**
     * List all users.
     *
     * @return All existing users.
@@ -64,6 +72,10 @@ class UserDaoImpl @Inject()(daoRunner: DaoRunner)(
 
   override def find(id: Long): Future[Option[User]] = daoRunner.run {
     users.filter(_.id === id).result.headOption
+  }
+
+  override def find(email: String): Future[Option[User]] = daoRunner.run {
+    users.filter(_.email === email).result.headOption
   }
 
   override def listAll(): Future[Iterable[User]] = daoRunner.run {

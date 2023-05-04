@@ -15,6 +15,7 @@ create table public.users
     role            varchar(16)     not null,
     birth_date      timestamp       not null,
     phone_number    varchar(12)     not null,
+    address         varchar(255)    not null,
     PRIMARY KEY(id)
 );
 
