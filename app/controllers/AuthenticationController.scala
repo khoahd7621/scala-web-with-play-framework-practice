@@ -1,18 +1,15 @@
-package controllers.authentication
+package controllers
 
 import com.google.inject.Singleton
 import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.api.exceptions.ProviderException
 import com.mohiva.play.silhouette.api.util.Credentials
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import controllers.{
-  SilhouetteAbstractController,
-  SilhouetteControllerComponents
-}
 import domain.dto.request.{LoginPostRequest, UserPostRequest}
 import domain.dto.response.UserResponse
 import domain.models.User
 import play.api.libs.json.{JsString, Json}
+import play.api.mvc.Results.{BadRequest, Conflict, Ok}
 import play.api.mvc._
 import services.UserService
 
@@ -24,7 +21,7 @@ class AuthenticationController @Inject()(
   controllerComponents: SilhouetteControllerComponents,
   userService: UserService,
 )(implicit ec: ExecutionContext)
-    extends SilhouetteAbstractController(controllerComponents) {
+    extends SilhouetteController(controllerComponents) {
 
   def register: Action[AnyContent] = UnsecuredAction.async {
     implicit request: Request[AnyContent] =>
