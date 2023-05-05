@@ -19,3 +19,10 @@ GET         /users/:id              controllers.UserController.getUserById(id: L
 POST        /users                  controllers.UserController.createUser
 PUT         /users/:id              controllers.UserController.updateUser(id: Long)
 DELETE      /users/:id              controllers.UserController.deleteUser(id: Long)
+
+# Product Endpoints
+GET         /products               controllers.ProductController.getAllProducts
+GET         /products/:id           controllers.ProductController.getProductById(id: Long)
+POST        /products               controllers.ProductController.createProduct
+PUT         /products/:id           controllers.ProductController.updateProduct(id: Long)
+DELETE      /products/:id           controllers.ProductController.deleteProduct(id: Long)

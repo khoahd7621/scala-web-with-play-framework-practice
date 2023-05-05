@@ -6,7 +6,7 @@ import slick.jdbc.PostgresProfile.api._
 import java.time.LocalDateTime
 
 class ProductTable(tag: Tag)
-    extends Table[Product](tag, Some("scala-demo"), "products") {
+    extends Table[Product](tag, Some("public"), "products") {
 
   def id = column[Option[Long]]("id", O.PrimaryKey, O.AutoInc, O.Unique)
 

@@ -29,8 +29,8 @@ create table public.products
 (
     id              serial          not null,
     product_name    varchar(64)     not null,
-    price           varchar(64)     not null,
-    exp_date        decimal         not null,
+    price           decimal         not null,
+    exp_date        timestamp       not null,
     PRIMARY KEY(id)
 );
 
