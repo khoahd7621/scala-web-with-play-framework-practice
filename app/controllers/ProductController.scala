@@ -9,20 +9,23 @@ import com.mohiva.play.silhouette.impl.authenticators.JWTAuthenticator
 import domain.dto.request.ProductPostRequest
 import domain.dto.response.ProductResponse
 import domain.models.Product
+import httpclient.ExternalServiceException
 import play.api.Logger
 import play.api.data.Form
 import play.api.data.format.Formats.doubleFormat
 import play.api.libs.json.{JsString, Json}
 import play.api.mvc._
-import services.ProductService
+import services.{ExternalProductService, ProductService}
 import utils.auth.{JWTEnvironment, WithRole}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 class ProductController @Inject()(
   cc: ControllerComponents,
   productService: ProductService,
+  externalProductService: ExternalProductService,
   silhouette: Silhouette[JWTEnvironment]
 )(implicit ec: ExecutionContext)
     extends AbstractController(cc) {
@@ -82,6 +85,46 @@ class ProductController @Inject()(
           case None          => NotFound
         }
       }
+
+  def getAllExternalProducts: Action[AnyContent] =
+    SecuredAction(WithRole[JWTAuthenticator]("Admin", "Operator")).async {
+      implicit request =>
+        logger.trace("get all external products")
+
+        // try/catch Future exception with transform
+        externalProductService.listAll().transform {
+          case Failure(exception) => handleExternalError(exception)
+          case Success(products) =>
+            Try(
+              Ok(
+                Json.toJson(
+                  products.map(product => ProductResponse.fromProduct(product))
+                )
+              )
+            )
+        }
+    }
+
+  private def handleExternalError(throwable: Throwable): Try[Result] = {
+    throwable match {
+      case ese: ExternalServiceException =>
+        logger.trace(s"An ExternalServiceException occurred: ${ese.getMessage}")
+        if (ese.error.isEmpty)
+          Try(
+            BadRequest(
+              JsString(
+                s"An ExternalServiceException occurred. statusCode: ${ese.statusCode}"
+              )
+            )
+          )
+        else Try(BadRequest(Json.toJson(ese.error.get)))
+      case _ =>
+        logger.trace(
+          s"An other exception occurred on getAllExternal: ${throwable.getMessage}"
+        )
+        Try(BadRequest(JsString("Unable to create an external product")))
+    }
+  }
 
   private val form: Form[ProductPostRequest] = {
     import play.api.data.Forms._

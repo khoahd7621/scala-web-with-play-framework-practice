@@ -26,3 +26,4 @@ GET         /products/:id           controllers.ProductController.getProductById
 POST        /products               controllers.ProductController.createProduct
 PUT         /products/:id           controllers.ProductController.updateProduct(id: Long)
 DELETE      /products/:id           controllers.ProductController.deleteProduct(id: Long)
+GET         /external/products      controllers.ProductController.getAllExternalProducts
