@@ -12,3 +12,10 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 # Authentication Enpoints
 POST        /register               controllers.AuthenticationController.register
 POST        /login                  controllers.AuthenticationController.login
+
+# User Endpoints
+GET         /users                  controllers.UserController.getAllUsers
+GET         /users/:id              controllers.UserController.getUserById(id: Long)
+POST        /users                  controllers.UserController.createUser
+PUT         /users/:id              controllers.UserController.updateUser(id: Long)
+DELETE      /users/:id              controllers.UserController.deleteUser(id: Long)
