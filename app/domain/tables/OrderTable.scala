@@ -5,8 +5,7 @@ import slick.jdbc.PostgresProfile.api._
 
 import java.time.LocalDateTime
 
-class OrderTable(tag: Tag)
-    extends Table[Order](tag, Some("scala-demo"), "orders") {
+class OrderTable(tag: Tag) extends Table[Order](tag, Some("public"), "orders") {
 
   def id = column[Option[Long]]("id", O.PrimaryKey, O.AutoInc, O.Unique)
 
