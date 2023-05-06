@@ -27,3 +27,10 @@ POST        /products               controllers.ProductController.createProduct
 PUT         /products/:id           controllers.ProductController.updateProduct(id: Long)
 DELETE      /products/:id           controllers.ProductController.deleteProduct(id: Long)
 GET         /external/products      controllers.ProductController.getAllExternalProducts
+
+# Order Endpoints
+GET         /orders                 controllers.OrderController.getAllOrders
+GET         /orders/:id             controllers.OrderController.getOrderById(id: Long)
+POST        /orders                 controllers.OrderController.createOrder
+PUT         /orders/:id             controllers.OrderController.updateOrder(id: Long)
+DELETE      /orders/:id             controllers.OrderController.deleteOrder(id: Long)
