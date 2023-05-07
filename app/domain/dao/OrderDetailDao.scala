@@ -27,6 +27,14 @@ trait OrderDetailDao {
   def findByOrderId(orderId: Long): Future[Option[OrderDetail]]
 
   /**
+    * Finds all order details by orderId.
+    *
+    * @param orderId The order's id of order detail to find.
+    * @return All the found order details for the given orderId could be found.
+    */
+  def findAllByOrderId(orderId: Long): Future[Seq[OrderDetail]]
+
+  /**
     * List all OrderDetails.
     *
     * @return All existing order details.
@@ -80,6 +88,11 @@ class OrderDetailDaoImpl @Inject()(daoRunner: DaoRunner)(
   override def findByOrderId(orderId: Long): Future[Option[OrderDetail]] =
     daoRunner.run {
       orderDetails.filter(_.orderId === orderId).result.headOption
+    }
+
+  override def findAllByOrderId(orderId: Long): Future[Seq[OrderDetail]] =
+    daoRunner.run {
+      orderDetails.filter(_.orderId === orderId).result
     }
 
   override def listAll(): Future[Iterable[OrderDetail]] = daoRunner.run {

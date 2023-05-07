@@ -6,19 +6,12 @@ import com.mohiva.play.silhouette.impl.authenticators.JWTAuthenticator
 import domain.dto.request.{OrderItemsRequest, OrderPostRequest, OrderPutRequest}
 import play.api.Logger
 import play.api.data.Form
+import play.api.data.Forms._
 import play.api.data.format.Formats.doubleFormat
 import play.api.libs.json.{JsString, Json}
-import play.api.mvc.{
-  AbstractController,
-  Action,
-  AnyContent,
-  ControllerComponents,
-  Request,
-  Result
-}
+import play.api.mvc._
 import services.OrderService
 import utils.auth.{JWTEnvironment, WithRole}
-import play.api.data.Forms._
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -87,9 +80,19 @@ class OrderController @Inject()(
           logger.trace("create new order")
 
           request.identity.role match {
-            case "Admin" => processJsonPut(None)
-            case "User"  => processJsonPut(request.identity.id)
-            case _       => Future.successful(Forbidden)
+            case "Admin" => processJsonPut()
+            case "User" =>
+              orderService.find(id).flatMap {
+                case Some(order) => {
+                  if (order.userId != request.identity.id.get) {
+                    Future.successful(Forbidden)
+                  } else {
+                    processJsonPut()
+                  }
+                }
+                case None => Future.successful(NotFound)
+              }
+            case _ => Future.successful(Forbidden)
           }
         }
     }
@@ -108,37 +111,30 @@ class OrderController @Inject()(
             }
           case "User" =>
             orderService.find(id).map {
-              case Some(order) => {
+              case Some(order) =>
                 if (order.userId == request.identity.id.get) {
-                  val orderDeleted = orderService.delete(id)
-                  if (orderDeleted.isCompleted) {
-                    Ok(JsString(s"delete order with id: $id successfully"))
-                  } else {
-                    BadRequest(JsString(s"unable to delete order with $id"))
-                  }
+                  orderService.delete(id)
+                  Ok(JsString(s"delete order with id: $id successfully"))
                 } else {
                   Forbidden
                 }
-              }
               case None => NotFound
             }
         }
     }
 
-  private val formPost: Form[OrderPostRequest] = {
-    Form(
-      mapping(
-        "userId" -> longNumber,
-        "orderItemsRequest" -> seq(
-          mapping(
-            "productId" -> longNumber,
-            "quantity" -> number,
-            "price" -> of(doubleFormat)
-          )(OrderItemsRequest.apply)(OrderItemsRequest.unapply)
-        )
-      )(OrderPostRequest.apply)(OrderPostRequest.unapply)
-    )
-  }
+  private val orderItemsMapping = mapping(
+    "productId" -> longNumber,
+    "quantity" -> number,
+    "price" -> of(doubleFormat)
+  )(OrderItemsRequest.apply)(OrderItemsRequest.unapply)
+
+  private val formPost: Form[OrderPostRequest] = Form(
+    mapping(
+      "userId" -> longNumber,
+      "orderItemsRequest" -> seq(orderItemsMapping)
+    )(OrderPostRequest.apply)(OrderPostRequest.unapply)
+  )
 
   private def processJsonPost[A](
     userId: Option[Long]
@@ -162,40 +158,26 @@ class OrderController @Inject()(
     formPost.bindFromRequest().fold(failure, success)
   }
 
-  private val formPut: Form[OrderPutRequest] = {
-    Form(
-      mapping(
-        "id" -> longNumber,
-        "userId" -> longNumber,
-        "orderItemsRequest" -> seq(
-          mapping(
-            "productId" -> longNumber,
-            "quantity" -> number,
-            "price" -> of(doubleFormat)
-          )(OrderItemsRequest.apply)(OrderItemsRequest.unapply)
-        )
-      )(OrderPutRequest.apply)(OrderPutRequest.unapply)
-    )
-  }
+  private val formPut: Form[OrderPutRequest] = Form(
+    mapping(
+      "id" -> longNumber,
+      "userId" -> longNumber,
+      "orderItemsRequest" -> seq(orderItemsMapping)
+    )(OrderPutRequest.apply)(OrderPutRequest.unapply)
+  )
 
-  private def processJsonPut[A](
-    userId: Option[Long]
-  )(implicit request: Request[A]): Future[Result] = {
+  private def processJsonPut[A]()(
+    implicit request: Request[A]
+  ): Future[Result] = {
 
     def failure(badForm: Form[OrderPutRequest]) = {
       Future.successful(BadRequest(JsString("invalid input")))
     }
 
-    def success(orderPutRequest: OrderPutRequest) = userId match {
-      case None =>
-        orderService.update(orderPutRequest, None).map { order =>
-          Created(Json.toJson(order))
-        }
-      case Some(userId) =>
-        orderService.update(orderPutRequest, Some(userId)).map { order =>
-          Created(Json.toJson(order))
-        }
-    }
+    def success(orderPutRequest: OrderPutRequest) =
+      orderService.update(orderPutRequest).map { order =>
+        Created(Json.toJson(order))
+      }
 
     formPut.bindFromRequest().fold(failure, success)
   }

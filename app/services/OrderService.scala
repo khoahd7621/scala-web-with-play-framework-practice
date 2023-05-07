@@ -8,6 +8,7 @@ import domain.models.{Order, OrderDetail}
 
 import java.time.LocalDateTime
 import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 /**
   * OrderService is a type of an IdentityService that can be used to authenticate Orders.
@@ -44,8 +45,7 @@ trait OrderService {
     * @param order The order to update.
     * @return The updated Order.
     */
-  def update(order: OrderPutRequest,
-             userId: Option[Long]): Future[OrderResponse]
+  def update(order: OrderPutRequest): Future[OrderResponse]
 
   /**
     * Deletes an order.
@@ -72,13 +72,18 @@ class OrderServiceImpl @Inject()(
 
   override def find(id: Long): Future[Option[OrderResponse]] = {
     orderDao.find(id).map {
-      case Some(order) => Some(getOrderItemsOfOrder(order))
-      case None        => None
+      case Some(order) => {
+        val orderResponse = getOrderResponseAndItsItems(order);
+        Some(orderResponse)
+      }
+      case None => None
     }
   }
 
   override def listAll(): Future[Iterable[OrderResponse]] = {
-    orderDao.listAll().map(_.map(order => getOrderItemsOfOrder(order)))
+    orderDao
+      .listAll()
+      .map(orders => orders.map(order => getOrderResponseAndItsItems(order)))
   }
 
   override def save(
@@ -112,20 +117,78 @@ class OrderServiceImpl @Inject()(
     })
   }
 
-  override def update(order: OrderPutRequest,
-                      userId: Option[Long]): Future[OrderResponse] = ???
+  override def update(
+    orderPutRequest: OrderPutRequest
+  ): Future[OrderResponse] = {
+    val order = Await.result(
+      orderDao.find(orderPutRequest.orderId),
+      scala.concurrent.duration.Duration.Inf
+    )
+    order match {
+      case Some(order) =>
+        val oldOrderDetails = Await.result(
+          orderDetailDao.findAllByOrderId(order.id.get),
+          scala.concurrent.duration.Duration.Inf
+        )
+        oldOrderDetails.foreach(
+          orderDetail => orderDetailDao.delete(orderDetail.id.get)
+        )
+        var newTotalPrice: Double = 0;
+        val newOrderDetails =
+          orderPutRequest.orderItemsRequest.map(orderItem => {
+            newTotalPrice = newTotalPrice + orderItem.price * orderItem.quantity
+            OrderDetail(
+              None,
+              order.id.get,
+              orderItem.productId,
+              orderItem.quantity,
+              orderItem.price
+            )
+          })
+        val savedOrderDetails = Await.result(
+          orderDetailDao.saveAll(newOrderDetails),
+          scala.concurrent.duration.Duration.Inf
+        )
+        var orderItemsResponse = List[OrderItemsResponse]()
+        savedOrderDetails.foreach { orderDetail =>
+          orderItemsResponse = orderItemsResponse
+            .appended(OrderItemsResponse.fromOrderDetail(orderDetail))
+        }
+        val orderNew = order.copy(totalPrice = newTotalPrice)
+        orderDao.update(orderNew)
+        Future.successful(
+          OrderResponse
+            .fromOrder(orderNew)
+            .copy(orderItems = orderItemsResponse)
+        )
+      case None => Future.failed(new Exception("Order not found"))
+    }
+  }
 
-  override def delete(id: Long): Future[Int] = ???
+  override def delete(id: Long): Future[Int] = {
+    orderDetailDao
+      .findAllByOrderId(id)
+      .onComplete({
+        case Success(listOrderDetails) =>
+          listOrderDetails.map(orderDetail => {
+            orderDetailDao.delete(orderDetail.id.get)
+          })
+        case Failure(exception) => throw exception
+      })
+    orderDao.delete(id)
+  }
 
-  private def getOrderItemsOfOrder(order: Order): OrderResponse = {
-    val orderDetails = orderDetailDao.findByOrderId(order.id.get)
-    val orderItemsResponse = List[OrderItemsResponse]()
-    orderDetails.map(orderDetail => {
-      orderItemsResponse.appended(
-        OrderItemsResponse.fromOrderDetail(orderDetail.get)
-      )
-    })
-
+  private def getOrderResponseAndItsItems(order: Order): OrderResponse = {
+    val listOrderDetail = Await.result(
+      orderDetailDao.findAllByOrderId(order.id.get),
+      scala.concurrent.duration.Duration.Inf
+    )
+    var orderItemsResponse = Seq[OrderItemsResponse]()
+    listOrderDetail.foreach(
+      orderDetail =>
+        orderItemsResponse = orderItemsResponse :+ OrderItemsResponse
+          .fromOrderDetail(orderDetail)
+    )
     OrderResponse.fromOrder(order).copy(orderItems = orderItemsResponse)
   }
 }
