@@ -1,0 +1,569 @@
+{
+	"info": {
+		"_postman_id": "a4fc459b-9c1f-4bf8-b1eb-30e65f4310c1",
+		"name": "Scala",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20501350"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "http://localhost:9000/login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response\r",
+									"const xAuthToken = res.headers.toObject()[\"x-auth\"]\r",
+									"pm.environment.set(\"X-Auth\", xAuthToken)\r",
+									"console.log(xAuthToken)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"admin@nashtechglobal.com\",\r\n    \"password\": \"Admin@123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9000/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9000/register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@nashtechglobal.com\",\n    \"firstName\": \"User\",\n    \"lastName\": \"Customer\",\n    \"role\": \"User\",\n    \"address\": \"Vietnam\",\n    \"phoneNumber\": \"0123456789\",\n    \"birthDate\": \"1980-01-01T00:00:00.000Z\",\n    \"password\": \"User@123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9000/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "http://localhost:9000/users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Auth",
+								"value": "{{X-Auth}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:9000/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9000/users/:userId",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Auth",
+								"value": "{{X-Auth}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:9000/users/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9000/users",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Auth",
+								"value": "{{X-Auth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"khoa.hoangdang@nashtechglobal.com\",\n    \"firstName\": \"Khoa\",\n    \"lastName\": \"Hoang Dang\",\n    \"role\": \"User\",\n    \"address\": \"Dong Nai\",\n    \"phoneNumber\": \"0123456789\",\n    \"birthDate\": \"2001-01-01T00:00:00.000Z\",\n    \"password\": \"Khoa@123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9000/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9000/users/:userId",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-Auth",
+								"value": "{{X-Auth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"khoa.hoangdang1@nashtechglobal.com\",\n    \"firstName\": \"Khoa 1\",\n    \"lastName\": \"Hoang Dang 1\",\n    \"role\": \"User\",\n    \"address\": \"Dong Nai 1\",\n    \"phoneNumber\": \"0123456789\",\n    \"birthDate\": \"2002-01-01T00:00:00.000Z\",\n    \"password\": \"Khoa1@123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9000/users/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9000/users/:userId",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-Auth",
+								"value": "{{X-Auth}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:9000/users/3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"users",
+								"3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "http://localhost:9000/products",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Auth",
+								"value": "{{X-Auth}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:9000/products",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9000/users/:productId",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Auth",
+								"value": "{{X-Auth}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:9000/products/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"products",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9000/products",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Auth",
+								"value": "{{X-Auth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productName\": \"Lenovo Thinkpad T14 Core I9, 4K UltraHD, 32GB RAM, 10TB SSD\",\n    \"price\": \"49000000\",\n    \"expDate\": \"2024-12-31T00:00:00.000Z\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9000/products",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9000/users/:productId",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-Auth",
+								"value": "{{X-Auth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productName\": \"Apple Iphone 15\",\n    \"price\": \"29444000\",\n    \"expDate\": \"2024-10-05T14:48:00.000Z\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9000/products/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"products",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9000/users/:productId",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-Auth",
+								"value": "{{X-Auth}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:9000/products/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"products",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "http://localhost:9000/orders",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Auth",
+								"value": "{{X-Auth}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:9000/orders",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9000/orders/:orderId",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Auth",
+								"value": "{{X-Auth}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:9000/orders/10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"orders",
+								"10"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9000/orders",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Auth",
+								"value": "{{X-Auth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"3\",\n    \"orderItemsRequest\": [\n        {\n            \"productId\": 1,\n            \"quantity\": 2,\n            \"price\": 29880000\n        },\n        {\n            \"productId\": 2,\n            \"quantity\": 1,\n            \"price\": 2990000\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9000/orders",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9000/orders/:orderId",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-Auth",
+								"value": "{{X-Auth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"userId\": 1,\n    \"orderItemsRequest\": [\n        {\n            \"productId\": 3,\n            \"quantity\": 4,\n            \"price\": 399000\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9000/orders/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"orders",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://localhost:9000/orders/:orderId",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-Auth",
+								"value": "{{X-Auth}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:9000/orders/11",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"orders",
+								"11"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "External Pdocuts",
+			"item": [
+				{
+					"name": "http://localhost:9000/external/products",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Auth",
+								"value": "{{X-Auth}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:9000/external/products",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9000",
+							"path": [
+								"external",
+								"products"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
