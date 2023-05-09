@@ -19,18 +19,21 @@ class ProductServiceSpec extends PlaySpec with MockitoSugar with ScalaFutures {
   val productService: ProductService =
     new ProductServiceImpl(mockProductDao)(global)
 
-  "ProductService#find(id: Long)" should {
-    "get a product successfully" in {
-      val product = Product(Some(2L), "Product 2", 2, LocalDateTime.now())
-      when(mockProductDao.find(anyLong()))
-        .thenReturn(Future.successful(Some(product)))
+  private val product1 = Product(Some(1L), "Product 1", 1, LocalDateTime.now())
+  private val product2 = Product(Some(2L), "Product 2", 2, LocalDateTime.now())
 
-      val result = productService.find(2L).futureValue
+
+
+  "ProductService#find(id: Long)" should {
+
+    "get a product successfully" in {
+      when(mockProductDao.find(anyLong()))
+        .thenReturn(Future.successful(Some(product1)))
+
+      val result = productService.find(1L).futureValue
       result.isEmpty mustBe false
       val actual = result.get
-      actual.id.get mustEqual product.id.get
-      actual.productName mustEqual product.productName
-      actual.price mustEqual product.price
+      verifyProduct(actual, product1)
     }
 
     "product not found" in {
@@ -41,5 +44,54 @@ class ProductServiceSpec extends PlaySpec with MockitoSugar with ScalaFutures {
     }
   }
 
-  // Same for remaining methods
+  "ProductService#listAll" should {
+
+    "get all products successfully" in {
+      val products = Seq(product1, product2)
+      when(mockProductDao.listAll()).thenReturn(Future.successful(products))
+
+      val result = productService.listAll().futureValue
+      result.isEmpty mustBe false
+      result.size mustBe 2
+      result.map(_.id.get) must contain allOf (1L, 2L)
+    }
+  }
+
+  "ProductService#save(product)" should {
+
+    "save a product successfully" in {
+      when(mockProductDao.save(product1))
+        .thenReturn(Future.successful(product1))
+
+      val result = productService.save(product1).futureValue
+      verifyProduct(result, product1)
+    }
+  }
+
+  "ProductService#update(product)" should {
+
+    "update a product successfully" in {
+      when(mockProductDao.update(product1))
+        .thenReturn(Future.successful(product1))
+
+      val result = productService.update(product1).futureValue
+      verifyProduct(result, product1)
+    }
+  }
+
+  "ProductService#delete(id: Long)" should {
+
+    "delete a product successfully" in {
+      when(mockProductDao.delete(1L)).thenReturn(Future.successful(1))
+
+      val result = productService.delete(1L).futureValue
+      result mustEqual 1
+    }
+  }
+
+  private def verifyProduct(product: Product, expected: Product): Unit = {
+    product.id.get mustEqual expected.id.get
+    product.productName mustEqual expected.productName
+    product.price mustEqual expected.price
+  }
 }
