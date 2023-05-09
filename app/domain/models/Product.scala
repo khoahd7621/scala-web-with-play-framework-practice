@@ -1,6 +1,6 @@
 package domain.models
 
-import domain.dto.request.ProductPostRequest
+import domain.dtos.request.ProductPostRequest
 import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDateTime

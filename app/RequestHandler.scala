@@ -1,11 +1,10 @@
+import javax.inject.Inject
 import play.api.OptionalDevContext
 import play.api.http._
 import play.api.mvc._
 import play.api.mvc.request.RequestTarget
 import play.api.routing.Router
 import play.core.WebCommands
-
-import javax.inject.Inject
 
 /**
   * Handles all requests.

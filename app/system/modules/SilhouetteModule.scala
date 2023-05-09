@@ -11,14 +11,7 @@ import com.mohiva.play.silhouette.api.crypto.{
 }
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.services.AuthenticatorService
-import com.mohiva.play.silhouette.api.util.{
-  Clock,
-  HTTPLayer,
-  IDGenerator,
-  PasswordHasherRegistry,
-  PasswordInfo,
-  PlayHTTPLayer
-}
+import com.mohiva.play.silhouette.api.util._
 import com.mohiva.play.silhouette.api.{
   Environment,
   EventBus,
@@ -39,7 +32,7 @@ import com.mohiva.play.silhouette.password.{
 }
 import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
 import com.mohiva.play.silhouette.persistence.repositories.DelegableAuthInfoRepository
-import controllers.{
+import controllers.abstraction.{
   DefaultSilhouetteControllerComponents,
   SilhouetteControllerComponents
 }

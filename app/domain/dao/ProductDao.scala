@@ -34,6 +34,14 @@ trait ProductDao {
   def save(product: Product): Future[Product]
 
   /**
+    * Saves all products.
+    *
+    * @param list The products to save.
+    * @return The saved products.
+    */
+  def saveAll(list: Seq[Product]): Future[Seq[Product]]
+
+  /**
     * Updates a product.
     *
     * @param product The product to update.
@@ -68,6 +76,11 @@ class ProductDaoImpl @Inject()(daoRunner: DaoRunner)(
   override def save(product: Product): Future[Product] = daoRunner.run {
     products returning products += product
   }
+
+  override def saveAll(list: Seq[Product]): Future[Seq[Product]] =
+    daoRunner.run {
+      (products ++= list).map(_ => list)
+    }
 
   override def update(product: Product): Future[Product] = daoRunner.run {
     products.filter(_.id === product.id).update(product).map(_ => product)

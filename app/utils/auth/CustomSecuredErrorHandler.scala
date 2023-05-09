@@ -12,45 +12,34 @@ import play.api.mvc.Results._
 import scala.concurrent.Future
 
 /**
-  * Custom secured error handler.
-  *
-  * @param messagesApi The Play messages API.
-  */
-class CustomSecuredErrorHandler @Inject()(val messagesApi: MessagesApi)
-    extends SecuredErrorHandler
-    with I18nSupport {
+ * Custom secured error handler.
+ *
+ * @param messagesApi The Play messages API.
+ */
+class CustomSecuredErrorHandler @Inject() (val messagesApi: MessagesApi)
+  extends SecuredErrorHandler with I18nSupport {
 
   /**
-    * Called when a user is not authenticated.
-    *
-    * As defined by RFC 2616, the status code of the response should be 401 Unauthorized.
-    *
-    * @param request The request header.
-    * @return The result to send to the client.
-    */
-  override def onNotAuthenticated(
-    implicit request: RequestHeader
-  ): Future[mvc.Result] = {
-    Future.successful(
-      Unauthorized(
-        JsString("Authentication required to perform this operation")
-      )
-    )
+   * Called when a user is not authenticated.
+   *
+   * As defined by RFC 2616, the status code of the response should be 401 Unauthorized.
+   *
+   * @param request The request header.
+   * @return The result to send to the client.
+   */
+  override def onNotAuthenticated(implicit request: RequestHeader): Future[mvc.Result] = {
+    Future.successful(Unauthorized(JsString("Authentication required to perform this operation")))
   }
 
   /**
-    * Called when a user is authenticated but not authorized.
-    *
-    * As defined by RFC 2616, the status code of the response should be 403 Forbidden.
-    *
-    * @param request The request header.
-    * @return The result to send to the client.
-    */
-  override def onNotAuthorized(
-    implicit request: RequestHeader
-  ): Future[api.mvc.Result] = {
-    Future.successful(
-      Forbidden(JsString("You are not authorized to perform this operation"))
-    )
+   * Called when a user is authenticated but not authorized.
+   *
+   * As defined by RFC 2616, the status code of the response should be 403 Forbidden.
+   *
+   * @param request The request header.
+   * @return The result to send to the client.
+   */
+  override def onNotAuthorized(implicit request: RequestHeader): Future[api.mvc.Result] = {
+    Future.successful(Forbidden(JsString("You are not authorized to perform this operation")))
   }
 }

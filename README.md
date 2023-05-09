@@ -19,7 +19,7 @@
    │   │   └── auth                                   # Authentication utils
    │   ├── domain
    │   │   ├── tables                                 # Slick tables
-   │   │   │   ├──OrderDetailTable.scala                 # Represents order details table
+   │   │   │   ├── OrderTable.scala                   # Represents order table
    │   │   │   ├── OrderDetailTable.scala             # Represents order details table
    │   │   │   ├── ProductTable.scala                 # Represents products table
    │   │   │   └── UserTable.scala                    # Represents users table
@@ -61,7 +61,8 @@
    │       ├── ProductController.scala                # Product controllers for CRUD a product
    │       ├── OrderController.scala                  # Order controllers for CRUD an order
    │       └── UserController.scala                   # User controllers for CRUD an user
-   ├── test
+   ├── test                                           # Unit tests
+   ├── it                                             # Integration tests
    ├── conf
    │   ├── evolutions                                 # Play evolutions SQL queries
    │   │   └── default                                # Default database
@@ -93,24 +94,24 @@ to get PostgreSQL ready.
 You need to download and install JDK 11 and sbt for this application to run.
 Once you have sbt installed, the following at the command prompt will start up Play in development mode:
 ```bash
-./sbt run
+sbt run
 ```
 
 Play will start up on the HTTP port at <http://localhost:9000/>.   You don't need to deploy or reload anything -- changing any source code while the server is running will automatically recompile and hot-reload the application on the next HTTP request.
 
 #### 3. Run Unit Tests
 ```bash
-./sbt clean test
+sbt clean test
 ```
 
 or To generate code coverage report with SCoverage
 ```bash
-./sbt clean coverage test coverageReport
+sbt clean coverage test coverageReport
 ```
 
 #### 4. Run Integration Tests
 ```bash
-./sbt clean integration/test
+sbt clean integration/test
 ```
 
 ### Usage

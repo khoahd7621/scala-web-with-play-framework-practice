@@ -6,8 +6,8 @@ import com.mohiva.play.silhouette.api.actions.{
   UnsecuredActionBuilder
 }
 import com.mohiva.play.silhouette.impl.authenticators.JWTAuthenticator
-import domain.dto.request.ProductPostRequest
-import domain.dto.response.ProductResponse
+import domain.dtos.request.ProductPostRequest
+import domain.dtos.response.ProductResponse
 import domain.models.Product
 import httpclient.ExternalServiceException
 import play.api.Logger
@@ -128,6 +128,7 @@ class ProductController @Inject()(
 
   private val form: Form[ProductPostRequest] = {
     import play.api.data.Forms._
+
     Form(
       mapping(
         "productName" -> nonEmptyText(maxLength = 100),

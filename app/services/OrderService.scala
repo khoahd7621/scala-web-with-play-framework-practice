@@ -2,8 +2,8 @@ package services
 
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import domain.dao.{OrderDao, OrderDetailDao}
-import domain.dto.request.{OrderPostRequest, OrderPutRequest}
-import domain.dto.response.{OrderItemsResponse, OrderResponse}
+import domain.dtos.request.{OrderPostRequest, OrderPutRequest}
+import domain.dtos.response.{OrderItemsResponse, OrderResponse}
 import domain.models.{Order, OrderDetail}
 
 import java.time.LocalDateTime

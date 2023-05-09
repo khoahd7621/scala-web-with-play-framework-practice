@@ -9,64 +9,56 @@ import scala.concurrent.Future
 import scala.reflect.ClassTag
 
 /**
-  * PasswordInfo Dao.
-  */
+ * PasswordInfo Dao.
+ */
 @Singleton
-class PasswordInfoDao @Inject()(userDao: UserDao)(
-  implicit val classTag: ClassTag[PasswordInfo],
-  ec: DbExecutionContext
-) extends DelegableAuthInfoDAO[PasswordInfo] {
+class PasswordInfoDao @Inject() (userDao: UserDao)(implicit val classTag: ClassTag[PasswordInfo], ec: DbExecutionContext)
+  extends DelegableAuthInfoDAO[PasswordInfo] {
 
   /**
-    * Finds passwordInfo for specified loginInfo
-    *
-    * @param loginInfo user's email
-    * @return user's hashed password
-    */
+   * Finds passwordInfo for specified loginInfo
+   *
+   * @param loginInfo user's email
+   * @return user's hashed password
+   */
   override def find(loginInfo: LoginInfo): Future[Option[PasswordInfo]] =
     userDao.find(loginInfo.providerKey).map(_.map(_.passwordInfo))
 
   /**
-    * Adds new passwordInfo for specified loginInfo
-    *
-    * @param loginInfo user's email
-    * @param passwordInfo user's hashed password
-    */
-  override def add(loginInfo: LoginInfo,
-                   passwordInfo: PasswordInfo): Future[PasswordInfo] =
+   * Adds new passwordInfo for specified loginInfo
+   *
+   * @param loginInfo user's email
+   * @param passwordInfo user's hashed password
+   */
+  override def add(loginInfo: LoginInfo, passwordInfo: PasswordInfo): Future[PasswordInfo] =
     update(loginInfo, passwordInfo)
 
   /**
-    * Updates passwordInfo for specified loginInfo
-    *
-    * @param loginInfo user's email
-    * @param passwordInfo user's hashed password
-    */
-  override def update(loginInfo: LoginInfo,
-                      passwordInfo: PasswordInfo): Future[PasswordInfo] =
+   * Updates passwordInfo for specified loginInfo
+   *
+   * @param loginInfo user's email
+   * @param passwordInfo user's hashed password
+   */
+  override def update(loginInfo: LoginInfo, passwordInfo: PasswordInfo): Future[PasswordInfo] =
     userDao.find(loginInfo.providerKey).flatMap {
-      case Some(user) =>
-        userDao
-          .update(user.copy(password = Some(passwordInfo.password)))
-          .map(_.passwordInfo)
+      case Some(user) => userDao.update(user.copy(password = Some(passwordInfo.password))).map(_.passwordInfo)
       case None => Future.failed(new Exception("user not found"))
     }
 
   /**
-    * Adds new passwordInfo for specified loginInfo
-    *
-    * @param loginInfo user's email
-    * @param passwordInfo user's hashed password
-    */
-  override def save(loginInfo: LoginInfo,
-                    passwordInfo: PasswordInfo): Future[PasswordInfo] =
+   * Adds new passwordInfo for specified loginInfo
+   *
+   * @param loginInfo user's email
+   * @param passwordInfo user's hashed password
+   */
+  override def save(loginInfo: LoginInfo, passwordInfo: PasswordInfo): Future[PasswordInfo] =
     update(loginInfo, passwordInfo)
 
   /**
-    * Removes passwordInfo for specified loginInfo
-    *
-    * @param loginInfo user's email
-    */
+   * Removes passwordInfo for specified loginInfo
+   *
+   * @param loginInfo user's email
+   */
   override def remove(loginInfo: LoginInfo): Future[Unit] =
     update(loginInfo, PasswordInfo("", "")).map(_ => ())
 }

@@ -1,35 +1,32 @@
 package controllers
 
-import com.mohiva.play.silhouette.api.actions.SecuredActionBuilder
-import com.mohiva.play.silhouette.api.util.PasswordHasherRegistry
-import com.mohiva.play.silhouette.api.{LoginInfo, Silhouette}
+import com.mohiva.play.silhouette.api.LoginInfo
 import com.mohiva.play.silhouette.impl.authenticators.JWTAuthenticator
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import domain.dto.request.UserPostRequest
-import domain.dto.response.UserResponse
+import controllers.abstraction.{
+  SilhouetteController,
+  SilhouetteControllerComponents
+}
+import domain.dtos.request.UserPostRequest
+import domain.dtos.response.UserResponse
 import domain.models.User
 import play.api.Logger
 import play.api.data.Form
 import play.api.libs.json.{JsString, Json}
+import play.api.mvc.Results.{BadRequest, Conflict, NotFound, Ok}
 import play.api.mvc._
 import services.UserService
-import utils.auth.{JWTEnvironment, WithRole}
+import utils.auth.WithRole
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class UserController @Inject()(
-  cc: ControllerComponents,
-  userService: UserService,
-  passwordHasherRegistry: PasswordHasherRegistry,
-  silhouette: Silhouette[JWTEnvironment]
+class UserController @Inject()(cc: SilhouetteControllerComponents,
+                               userService: UserService,
 )(implicit ec: ExecutionContext)
-    extends AbstractController(cc) {
+    extends SilhouetteController(cc) {
 
-  def SecuredAction: SecuredActionBuilder[JWTEnvironment, AnyContent] =
-    silhouette.SecuredAction
-
-  private val logger = Logger(getClass)
+  override val logger = Logger(getClass)
 
   def getAllUsers: Action[AnyContent] =
     SecuredAction(WithRole[JWTAuthenticator]("Admin")).async {

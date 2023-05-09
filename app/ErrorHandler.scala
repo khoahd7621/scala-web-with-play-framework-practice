@@ -1,3 +1,5 @@
+import javax.inject.{Inject, Provider}
+
 import play.api._
 import play.api.http.DefaultHttpErrorHandler
 import play.api.http.Status._
@@ -7,7 +9,6 @@ import play.api.mvc._
 import play.api.routing.Router
 import play.core.SourceMapper
 
-import javax.inject.{Inject, Provider}
 import scala.concurrent._
 
 /**

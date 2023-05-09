@@ -3,7 +3,11 @@ package controllers
 import com.mohiva.play.silhouette.api.Silhouette
 import com.mohiva.play.silhouette.api.actions.SecuredActionBuilder
 import com.mohiva.play.silhouette.impl.authenticators.JWTAuthenticator
-import domain.dto.request.{OrderItemsRequest, OrderPostRequest, OrderPutRequest}
+import domain.dtos.request.{
+  OrderItemsRequest,
+  OrderPostRequest,
+  OrderPutRequest
+}
 import play.api.Logger
 import play.api.data.Form
 import play.api.data.Forms._
@@ -12,6 +16,7 @@ import play.api.libs.json.{JsString, Json}
 import play.api.mvc._
 import services.OrderService
 import utils.auth.{JWTEnvironment, WithRole}
+import utils.logging.RequestMarkerContext
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -21,7 +26,8 @@ class OrderController @Inject()(
   orderService: OrderService,
   silhouette: Silhouette[JWTEnvironment]
 )(implicit ec: ExecutionContext)
-    extends AbstractController(cc) {
+    extends AbstractController(cc)
+    with RequestMarkerContext {
 
   def SecuredAction: SecuredActionBuilder[JWTEnvironment, AnyContent] =
     silhouette.SecuredAction

@@ -1,5 +1,9 @@
 logs
-target
+/target
+/it/target
+/project/project
+/project/target
+/sbt-dist
 /.bsp
 /.idea
 /.g8

@@ -8,5 +8,5 @@ import com.google.inject.{Inject, Singleton}
 
 @Singleton
 @Named("dbExContext")
-class DbExecutionContext @Inject()(actorSystem: ActorSystem)
-    extends CustomExecutionContext(actorSystem, "threads.db.dispatcher")
+class DbExecutionContext @Inject() (actorSystem: ActorSystem)
+  extends CustomExecutionContext(actorSystem, "threads.db.dispatcher")

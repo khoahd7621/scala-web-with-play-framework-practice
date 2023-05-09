@@ -25,8 +25,8 @@ case class WithProvider[A <: Authenticator](provider: String)
 /**
   * Only allows those users that have at least a role of the selected.
   * Admin role is always allowed.
-  * Ex: WithRole("Viewer", "Operator") => only users with roles "User" OR "Operator" (or "Admin") are allowed.
-  * Roles: "User" | "Operator" |  "Admin"
+  * Ex: WithRole("Viewer", "Creator") => only users with roles "User" OR "Creator" (or "Admin") are allowed.
+  * Roles: "User" | "Creator" | "Contributor" |  "Admin"
   */
 case class WithRole[A <: Authenticator](anyOf: String*)
     extends Authorization[User, A] {

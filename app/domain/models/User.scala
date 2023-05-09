@@ -4,7 +4,7 @@ import com.mohiva.play.silhouette.api.util.PasswordInfo
 import com.mohiva.play.silhouette.api.{Identity, LoginInfo}
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import com.mohiva.play.silhouette.password.BCryptSha256PasswordHasher
-import domain.dto.request.UserPostRequest
+import domain.dtos.request.UserPostRequest
 import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDateTime
