@@ -91,27 +91,28 @@ You can install PostgreSQL on your local machine (need to update connection stri
 to get PostgreSQL ready.
 
 #### 2. Run application
-You need to download and install JDK 11 and sbt for this application to run.
+You need to download and install sbt for this application to run.
+_Note: I've added the `SBT bin` to this project to build the source code without SBT installation_
 Once you have sbt installed, the following at the command prompt will start up Play in development mode:
 ```bash
-sbt run
+./sbt run
 ```
 
 Play will start up on the HTTP port at <http://localhost:9000/>.   You don't need to deploy or reload anything -- changing any source code while the server is running will automatically recompile and hot-reload the application on the next HTTP request.
 
 #### 3. Run Unit Tests
 ```bash
-sbt clean test
+./sbt clean test
 ```
 
-or To generate code coverage report with SCoverage
+or to generate code coverage report with SCoverage
 ```bash
-sbt clean coverage test coverageReport
+./sbt clean coverage test coverageReport
 ```
 
 #### 4. Run Integration Tests
 ```bash
-sbt clean integration/test
+./sbt clean integration/test
 ```
 
 ### Usage
@@ -120,7 +121,7 @@ sbt clean integration/test
 3. Do any things you want with the application
 
 ### References
-- [Scala Demo](https://github.com/nashtech-garage/scala-demo)
+- [Scala Demo - NashTech Garage](https://github.com/nashtech-garage/scala-demo)
 
 ### License & Copyright
 &copy; 2023 Khoa Dang Hoang khoahd7621
