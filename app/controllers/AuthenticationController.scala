@@ -12,7 +12,6 @@ import controllers.abstraction.{
 import domain.dtos.request.{LoginPostRequest, UserPostRequest}
 import domain.dtos.response.UserResponse
 import domain.models.User
-import play.api.i18n.Lang
 import play.api.libs.json.{JsString, Json}
 import play.api.mvc.Results.{BadRequest, Conflict, Ok}
 import play.api.mvc.{Action, AnyContent, Request}
@@ -26,8 +25,6 @@ class AuthenticationController @Inject()(
 
   def register: Action[AnyContent] = UnsecuredAction.async {
     implicit request: Request[AnyContent] =>
-      implicit val lang: Lang = supportedLangs.availables.head
-
       request.body.asJson.flatMap(_.asOpt[UserPostRequest]) match {
         case Some(newUser) =>
           userService
@@ -50,8 +47,6 @@ class AuthenticationController @Inject()(
 
   def login: Action[AnyContent] = UnsecuredAction.async {
     implicit request: Request[AnyContent] =>
-      implicit val lang: Lang = supportedLangs.availables.head
-
       request.body.asJson.flatMap(_.asOpt[LoginPostRequest]) match {
         case Some(loginPostRequest: LoginPostRequest) =>
           val credentials =

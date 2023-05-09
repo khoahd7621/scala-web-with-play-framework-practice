@@ -83,7 +83,7 @@ class OrderController @Inject()(
     SecuredAction(WithRole[JWTAuthenticator]("Admin", "User")).async {
       implicit request =>
         {
-          logger.trace("create new order")
+          logger.trace("update an order")
 
           request.identity.role match {
             case "Admin" => processJsonPut()

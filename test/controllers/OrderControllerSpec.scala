@@ -1,8 +1,9 @@
 package controllers
 
 import com.mohiva.play.silhouette.test._
-import domain.dtos.response.ProductResponse
-import domain.models.Product
+import domain.dtos.request.{OrderPostRequest, OrderPutRequest}
+import domain.dtos.response.{OrderItemsResponse, OrderResponse, ProductResponse}
+import domain.models.Order
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -15,25 +16,29 @@ import utils.auth.JWTEnvironment
 import java.time.LocalDateTime
 import scala.concurrent.Future
 
-class ProductControllerSpec extends ControllerFixture {
-
+class OrderControllerSpec extends ControllerFixture {
   val host = "localhost:9000"
-  val baseUri = "/products"
+  val baseUri = "/orders"
 
   val id = 1L
-  val product1: Product =
-    Product(Some(id), "Product Name", 1, LocalDateTime.now())
-  val product2: Product =
-    Product(Some(2L), "Product Name 1", 2, LocalDateTime.now())
+  val order: Order = Order(Some(id), 1, LocalDateTime.now(), 100)
+  val orderResponse: OrderResponse =
+    OrderResponse(
+      Some(id),
+      1,
+      LocalDateTime.now(),
+      100,
+      Seq(OrderItemsResponse(1, 2, 50))
+    )
 
-  "ProductController#getProductById(id: Long)" should {
+  "OrderController#getOrderById(id: Long)" should {
 
-    "get a product successfully" in {
+    "get an order successfully" in {
       // mock response data
       when(mockUserService.retrieve(identity.loginInfo))
         .thenReturn(Future.successful(Some(identity)))
-      when(mockProductService.find(ArgumentMatchers.eq(id)))
-        .thenReturn(Future.successful(Some(product1)))
+      when(mockOrderService.find(ArgumentMatchers.eq(id)))
+        .thenReturn(Future.successful(Some(orderResponse)))
 
       // prepare test request
       val request: FakeRequest[AnyContentAsEmpty.type] =
@@ -46,16 +51,16 @@ class ProductControllerSpec extends ControllerFixture {
 
       // verify result after test
       status(result) mustEqual OK
-      val resProduct: ProductResponse =
-        Json.fromJson[ProductResponse](contentAsJson(result)).get
-      verifyProduct(resProduct, product1)
+      val resProduct: OrderResponse =
+        Json.fromJson[OrderResponse](contentAsJson(result)).get
+      verifyOrderResponse(resProduct, orderResponse)
     }
 
-    "product not found" in {
+    "order not found" in {
       // mock response data
       when(mockUserService.retrieve(identity.loginInfo))
         .thenReturn(Future.successful(Some(identity)))
-      when(mockProductService.find(ArgumentMatchers.eq(1L)))
+      when(mockOrderService.find(ArgumentMatchers.eq(1L)))
         .thenReturn(Future.successful(None))
 
       // prepare test request
@@ -72,14 +77,14 @@ class ProductControllerSpec extends ControllerFixture {
     }
   }
 
-  "ProductController#getAllProducts" should {
+  "OrderController#getAllOrders" should {
 
-    "get all products successfully" in {
+    "get all orders successfully" in {
       // mock response data
       when(mockUserService.retrieve(identity.loginInfo))
         .thenReturn(Future.successful(Some(identity)))
-      when(mockProductService.listAll())
-        .thenReturn(Future.successful(Seq(product1, product2)))
+      when(mockOrderService.listAll())
+        .thenReturn(Future.successful(Seq(orderResponse)))
 
       // prepare test request
       val request: FakeRequest[AnyContentAsEmpty.type] =
@@ -92,20 +97,20 @@ class ProductControllerSpec extends ControllerFixture {
 
       // verify result after test
       status(result) mustEqual OK
-      val resProducts: Seq[ProductResponse] =
-        Json.fromJson[Seq[ProductResponse]](contentAsJson(result)).get
-      resProducts.size mustEqual 2
+      val resOrders: Seq[OrderResponse] =
+        Json.fromJson[Seq[OrderResponse]](contentAsJson(result)).get
+      resOrders.size mustEqual 1
     }
   }
 
-  "ProductController#createProduct" should {
+  "OrderController#createOrder" should {
 
-    "create a product successfully" in {
+    "create an order successfully" in {
       // mock response data
       when(mockUserService.retrieve(identity.loginInfo))
         .thenReturn(Future.successful(Some(identity)))
-      when(mockProductService.save(any(classOf[Product])))
-        .thenReturn(Future.successful(product1))
+      when(mockOrderService.save(any(classOf[OrderPostRequest])))
+        .thenReturn(Future.successful(orderResponse))
 
       // prepare test request
       val request: FakeRequest[JsValue] =
@@ -114,9 +119,10 @@ class ProductControllerSpec extends ControllerFixture {
           .withAuthenticator[JWTEnvironment](identity.loginInfo)
           .withBody(
             Json.obj(
-              "productName" -> "123",
-              "price" -> "123",
-              "expDate" -> "2024-12-31T00:00:00.000Z"
+              "userId" -> "1",
+              "orderItemsRequest" -> Json.arr(
+                Json.obj("productId" -> "1", "quantity" -> "2", "price" -> 100)
+              )
             )
           )
 
@@ -124,23 +130,21 @@ class ProductControllerSpec extends ControllerFixture {
       val result: Future[Result] = route(app, request).get
 
       // verify result after test
-      status(result) mustEqual OK
-      val resProduct: ProductResponse =
-        Json.fromJson[ProductResponse](contentAsJson(result)).get
-      verifyProduct(resProduct, product1)
+      status(result) mustEqual CREATED
+      val resOrder: OrderResponse =
+        Json.fromJson[OrderResponse](contentAsJson(result)).get
+      verifyOrderResponse(resOrder, orderResponse)
     }
   }
 
-  "ProductController#updateProduct" should {
+  "OrderController#updateOrder" should {
 
-    "update a product successfully" in {
+    "update an order successfully" in {
       // mock response data
       when(mockUserService.retrieve(identity.loginInfo))
         .thenReturn(Future.successful(Some(identity)))
-      when(mockProductService.find(ArgumentMatchers.eq(1L)))
-        .thenReturn(Future.successful(Some(product1)))
-      when(mockProductService.update(any(classOf[Product])))
-        .thenReturn(Future.successful(product1))
+      when(mockOrderService.update(any(classOf[OrderPutRequest])))
+        .thenReturn(Future.successful(orderResponse))
 
       // prepare test request
       val request: FakeRequest[JsValue] =
@@ -149,9 +153,11 @@ class ProductControllerSpec extends ControllerFixture {
           .withAuthenticator[JWTEnvironment](identity.loginInfo)
           .withBody(
             Json.obj(
-              "productName" -> "123",
-              "price" -> "123",
-              "expDate" -> "2024-12-31T00:00:00.000Z"
+              "id" -> "1",
+              "userId" -> "1",
+              "orderItemsRequest" -> Json.arr(
+                Json.obj("productId" -> "1", "quantity" -> "2", "price" -> 100)
+              )
             )
           )
 
@@ -159,47 +165,20 @@ class ProductControllerSpec extends ControllerFixture {
       val result: Future[Result] = route(app, request).get
 
       // verify result after test
-      status(result) mustEqual OK
-      val resProduct: ProductResponse =
-        Json.fromJson[ProductResponse](contentAsJson(result)).get
-      verifyProduct(resProduct, product1)
-    }
-
-    "product not found" in {
-      // mock response data
-      when(mockUserService.retrieve(identity.loginInfo))
-        .thenReturn(Future.successful(Some(identity)))
-      when(mockProductService.find(ArgumentMatchers.eq(1L)))
-        .thenReturn(Future.successful(None))
-
-      // prepare test request
-      val request: FakeRequest[JsValue] =
-        FakeRequest(PUT, s"$baseUri/$id")
-          .withHeaders(HOST -> host, CONTENT_TYPE -> JSON)
-          .withAuthenticator[JWTEnvironment](identity.loginInfo)
-          .withBody(
-            Json.obj(
-              "productName" -> "123",
-              "price" -> "123",
-              "expDate" -> "2024-12-31T00:00:00.000Z"
-            )
-          )
-
-      // Execute test and then extract result
-      val result: Future[Result] = route(app, request).get
-
-      // verify result after test
-      status(result) mustEqual NOT_FOUND
+      status(result) mustEqual CREATED
+      val resOrder: OrderResponse =
+        Json.fromJson[OrderResponse](contentAsJson(result)).get
+      verifyOrderResponse(resOrder, orderResponse)
     }
   }
 
-  "ProductController#delete(id: Long)" should {
+  "OrderController#delete(id: Long)" should {
 
-    "delete a product successfully" in {
+    "delete an order successfully" in {
       // mock response data
       when(mockUserService.retrieve(identity.loginInfo))
         .thenReturn(Future.successful(Some(identity)))
-      when(mockProductService.delete(ArgumentMatchers.eq(1L)))
+      when(mockOrderService.delete(ArgumentMatchers.eq(1L)))
         .thenReturn(Future.successful(1))
 
       // prepare test request
@@ -216,11 +195,17 @@ class ProductControllerSpec extends ControllerFixture {
     }
   }
 
-  private def verifyProduct(actual: ProductResponse,
-                            expected: Product): Unit = {
-    actual.id.get mustEqual expected.id.get
-    actual.productName mustEqual expected.productName
-    actual.price mustEqual expected.price
+  private def verifyOrderResponse(actual: OrderResponse,
+                                  expected: OrderResponse): Unit = {
+    actual.id mustBe expected.id
+    actual.userId mustBe expected.userId
+    actual.totalPrice mustBe expected.totalPrice
+    actual.orderItems.size mustBe expected.orderItems.size
+    actual.orderItems.map(_.productId) must contain allElementsOf expected.orderItems
+      .map(_.productId)
+    actual.orderItems.map(_.quantity) must contain allElementsOf expected.orderItems
+      .map(_.quantity)
+    actual.orderItems.map(_.price) must contain allElementsOf expected.orderItems
+      .map(_.price)
   }
-
 }
